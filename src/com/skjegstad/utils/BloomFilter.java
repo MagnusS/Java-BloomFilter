@@ -1,22 +1,22 @@
 /**
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+ * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.magnus.utils;
+package com.skjegstad.utils;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.BitSet;
@@ -26,7 +26,7 @@ import java.util.Collection;
  * Implementation of a Bloom-filter, as described here:
  * http://en.wikipedia.org/wiki/Bloom_filter
  *
- * Inspired by the SimpleBloomFilter-class written by Ian Clark. This
+ * Inspired by the SimpleBloomFilter-class written by Ian Clarke. This
  * implementation provides a more evenly distributed Hash-function by
  * using a proper digest instead of the Java RNG. Many of the changes
  * were proposed in comments in his blog:
@@ -41,6 +41,7 @@ public class BloomFilter<E> implements Serializable {
     private int expectedNumberOfFilterElements; // expected (maximum) number of elements to be added
     private int numberOfAddedElements; // number of elements actually added to the Bloom filter
     private int k;
+    static Charset charset = Charset.forName("UTF-8"); // encoding used for storing hash values as strings
 
     static String hashName = "MD5"; // MD5 gives good enough accuracy in most circumstances. Change to SHA1 if it's needed
     static final MessageDigest digestFunction;
@@ -70,14 +71,27 @@ public class BloomFilter<E> implements Serializable {
     }
 
     /**
+     * Construct a new Bloom filter based on existing Bloom filter data.
+     *
+     * @param bitSetSize defines how many bits should be used for the filter.
+     * @param expectedNumberOfFilterElements defines the maximum number of elements the filter is expected to contain.
+     * @param actualNumberOfFilterElements specifies how many elements have been inserted into the <code>filterData</code> BitSet.
+     * @param filterData a BitSet representing an existing Bloom filter.
+     */
+    public BloomFilter(int bitSetSize, int expectedNumberOfFilterElements, int actualNumberOfFilterElements, BitSet filterData) {
+        this(bitSetSize, expectedNumberOfFilterElements);
+        this.bitset = filterData;
+        this.numberOfAddedElements = actualNumberOfFilterElements;
+    }
+
+    /**
      * Generates a digest based on the contents of a String.
      *
      * @param val specifies the input data.
      * @param charset specifies the encoding of the input data.
      * @return digest as long.
-     * @throws UnsupportedEncodingException if the charset is unsupported.
      */
-    public static long createHash(String val, String charset) throws UnsupportedEncodingException {
+    public static long createHash(String val, Charset charset) {
         return createHash(val.getBytes(charset));
     }
 
@@ -86,10 +100,9 @@ public class BloomFilter<E> implements Serializable {
      *
      * @param val specifies the input data. The encoding is expected to be UTF-8.
      * @return digest as long.
-     * @throws UnsupportedEncodingException if UTF-8 is not supported.
      */
-    public static long createHash(String val) throws UnsupportedEncodingException {
-        return createHash(val.getBytes("UTF-8"));
+    public static long createHash(String val) {
+        return createHash(val, charset);
     }
 
     /**
@@ -115,30 +128,39 @@ public class BloomFilter<E> implements Serializable {
 
     /**
      * Compares the contents of two instances to see if they are equal.
-     * 
+     *
      * @param obj is the object to compare to.
      * @return True if the contents of the objects are equal.
      */
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
+            System.err.println("null");
             return false;
         }
         if (getClass() != obj.getClass()) {
+            System.err.println("neq");
             return false;
         }
-        final BloomFilter<E> other = (BloomFilter<E>) obj;
-        if (this.bitset != other.bitset && (this.bitset == null || !this.bitset.equals(other.bitset))) {
-            return false;
-        }
+        final BloomFilter<E> other = (BloomFilter<E>) obj;        
         if (this.expectedNumberOfFilterElements != other.expectedNumberOfFilterElements) {
+            System.err.println("exp");
             return false;
         }
         if (this.k != other.k) {
+            System.err.println("k");
             return false;
         }
-        if (this.bitSetSize != other.bitSetSize)
+        if (this.bitSetSize != other.bitSetSize) {
+            System.err.println("size");
             return false;
+        }
+        if (this.bitset != other.bitset && (this.bitset == null || !this.bitset.equals(other.bitset))) {
+            System.err.println("bitset" + this.bitset.equals(other.bitset) +
+                   "\n" + other.bitset.toString() +
+                   "\n" + this.bitset.toString());
+            return false;
+        }
         return true;
     }
 
@@ -222,9 +244,8 @@ public class BloomFilter<E> implements Serializable {
      * toString() method is used as input to the hash functions.
      *
      * @param element is an element to register in the Bloom filter.
-     * @throws UnsupportedEncodingException if UTF-8 is unsupported.
      */
-    public void add(E element) throws UnsupportedEncodingException {
+    public void add(E element) {
        long hash;
        String valString = element.toString();
        for (int x = 0; x < k; x++) {
@@ -238,9 +259,8 @@ public class BloomFilter<E> implements Serializable {
     /**
      * Adds all elements from a Collection to the Bloom filter.
      * @param c Collection of elements.
-     * @throws UnsupportedEncodingException if UTF-8 is unsupported.
      */
-    public void addAll(Collection<? extends E> c) throws UnsupportedEncodingException {
+    public void addAll(Collection<? extends E> c) {
         for (E element : c)
             add(element);
     }
@@ -252,9 +272,8 @@ public class BloomFilter<E> implements Serializable {
      *
      * @param element element to check.
      * @return true if the element could have been inserted into the Bloom filter.
-     * @throws UnsupportedEncodingException if UTF-8 is unsupported.
      */
-    public boolean contains(E element) throws UnsupportedEncodingException {
+    public boolean contains(E element) {
        long hash;
        String valString = element.toString();
        for (int x = 0; x < k; x++) {
@@ -272,9 +291,8 @@ public class BloomFilter<E> implements Serializable {
      * probability of this being correct.
      * @param c elements to check.
      * @return true if all the elements in c could have been inserted into the Bloom filter.
-     * @throws UnsupportedEncodingException if UTF-8 is unsupported.
      */
-    public boolean containsAll(Collection<? extends E> c) throws UnsupportedEncodingException {
+    public boolean containsAll(Collection<? extends E> c) {
         for (E element : c)
             if (!contains(element))
                 return false;
@@ -300,9 +318,17 @@ public class BloomFilter<E> implements Serializable {
     }
 
     /**
+     * Return the bit set used to store the Bloom filter.
+     * @return bit set representing the Bloom filter.
+     */
+    public BitSet getBitSet() {
+        return bitset;
+    }
+
+    /**
      * Returns the number of bits in the Bloom filter. Use count() to retrieve
      * the number of inserted elements.
-     * 
+     *
      * @return the size of the bitset used by the Bloom filter.
      */
     public int size() {
@@ -317,5 +343,15 @@ public class BloomFilter<E> implements Serializable {
      */
     public int count() {
         return this.numberOfAddedElements;
+    }
+
+    /**
+     * Returns the expected number of elements to be inserted into the filter.
+     * This value is the same value as the one passed to the constructor.
+     *
+     * @return expected number of elements.
+     */
+    public int getExpectedNumberOfElements() {
+        return expectedNumberOfFilterElements;
     }
 }

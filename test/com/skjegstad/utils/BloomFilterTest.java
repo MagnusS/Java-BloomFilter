@@ -1,19 +1,19 @@
 /**
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+ * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.magnus.utils;
+package com.skjegstad.utils;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Random;
@@ -79,6 +79,8 @@ public class BloomFilterTest {
         assert(instance1.equals(instance2));
         assert(instance2.equals(instance1));
 
+        instance1.add("Another entry"); // make instance1 and instance2 different before clearing
+
         instance1.clear();
         instance2.clear();
 
@@ -86,13 +88,13 @@ public class BloomFilterTest {
         assert(instance2.equals(instance1));
 
         for (int i = 0; i < 100; i++) {
-            String val = UUID.randomUUID().toString();            
-            instance1.add(val.getBytes());
-            instance2.add(val.getBytes());
+            String val = UUID.randomUUID().toString();     
+            instance1.add(val);
+            instance2.add(val);
         }
 
-        assert(instance1.equals(instance2));
-        assert(instance2.equals(instance1));
+        assertTrue(instance1.equals(instance2));
+        assertTrue(instance2.equals(instance1));
     }
 
     /**

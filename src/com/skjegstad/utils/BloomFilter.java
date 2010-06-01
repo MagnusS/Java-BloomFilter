@@ -135,30 +135,22 @@ public class BloomFilter<E> implements Serializable {
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
-            System.err.println("null");
             return false;
         }
         if (getClass() != obj.getClass()) {
-            System.err.println("neq");
             return false;
         }
         final BloomFilter<E> other = (BloomFilter<E>) obj;        
         if (this.expectedNumberOfFilterElements != other.expectedNumberOfFilterElements) {
-            System.err.println("exp");
             return false;
         }
         if (this.k != other.k) {
-            System.err.println("k");
             return false;
         }
         if (this.bitSetSize != other.bitSetSize) {
-            System.err.println("size");
             return false;
         }
         if (this.bitset != other.bitset && (this.bitset == null || !this.bitset.equals(other.bitset))) {
-            System.err.println("bitset" + this.bitset.equals(other.bitset) +
-                   "\n" + other.bitset.toString() +
-                   "\n" + this.bitset.toString());
             return false;
         }
         return true;

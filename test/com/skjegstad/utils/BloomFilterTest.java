@@ -15,10 +15,11 @@
 
 package com.skjegstad.utils;
 
+import java.util.List;
 import java.io.UnsupportedEncodingException;
 import java.util.Random;
 import java.util.UUID;
-import java.util.Vector;
+import java.util.ArrayList;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -206,7 +207,7 @@ public class BloomFilterTest {
     @Test
     public void testAddAll() throws Exception {
         System.out.println("addAll");
-        Vector<String> v = new Vector<String>();
+        List<String> v = new ArrayList<String>();
         BloomFilter instance = new BloomFilter(1000, 100);
 
         for (int i = 0; i < 100; i++)
@@ -242,7 +243,7 @@ public class BloomFilterTest {
     @Test
     public void testContainsAll() throws Exception {
         System.out.println("containsAll");
-        Vector<String> v = new Vector<String>();
+        List<String> v = new ArrayList<String>();
         BloomFilter instance = new BloomFilter(1000, 100);
 
         for (int i = 0; i < 100; i++) {
@@ -312,7 +313,7 @@ public class BloomFilterTest {
 
         for (int j = 10; j < 21; j++) {
             System.out.print(j-9 + "/11");
-            Vector<String> v = new Vector<String>();
+            List<String> v = new ArrayList<String>();
             BloomFilter instance = new BloomFilter(100*j,100);
 
             for (int i = 0; i < 100; i++) {

@@ -38,12 +38,14 @@ import java.util.Collection;
 public class BloomFilter<E> implements Serializable {
     private BitSet bitset;
     private int bitSetSize;
+    private double bitsPerElement;
     private int expectedNumberOfFilterElements; // expected (maximum) number of elements to be added
     private int numberOfAddedElements; // number of elements actually added to the Bloom filter
-    private int k;
-    static Charset charset = Charset.forName("UTF-8"); // encoding used for storing hash values as strings
+    private int k; // number of hash functions
 
-    static String hashName = "MD5"; // MD5 gives good enough accuracy in most circumstances. Change to SHA1 if it's needed
+    static final Charset charset = Charset.forName("UTF-8"); // encoding used for storing hash values as strings
+
+    static final String hashName = "MD5"; // MD5 gives good enough accuracy in most circumstances. Change to SHA1 if it's needed
     static final MessageDigest digestFunction;
     static { // The digest method is reused between instances
         MessageDigest tmp;
@@ -56,18 +58,47 @@ public class BloomFilter<E> implements Serializable {
     }
 
     /**
-     * Constructs an empty Bloom filter.
+      * Constructs an empty Bloom filter. The total length of the Bloom filter will be
+     * c*n.
+      *
+      * @param c is the number of bits used per element.
+      * @param n is the expected number of elements the filter will contain.
+      * @param k is the number of hash functions used.
+      */
+    public BloomFilter(double c, int n, int k) {
+      this.expectedNumberOfFilterElements = n;
+      this.k = k;
+      this.bitsPerElement = c;
+      this.bitSetSize = (int)Math.ceil(c * n);
+      numberOfAddedElements = 0;
+      this.bitset = new BitSet(bitSetSize);
+    }
+
+    /**
+     * Constructs an empty Bloom filter. The optimal number of hash functions (k) is estimated from the total size of the Bloom
+     * and the number of expected elements.
      *
-     * @param bitSetSize defines how many bits should be used for the filter.
-     * @param expectedNumberOfFilterElements defines the maximum number of elements the filter is expected to contain.
+     * @param bitSetSize defines how many bits should be used in total for the filter.
+     * @param expectedNumberOElements defines the maximum number of elements the filter is expected to contain.
      */
-    public BloomFilter(int bitSetSize, int expectedNumberOfFilterElements) {
-        this.expectedNumberOfFilterElements = expectedNumberOfFilterElements;
-        this.k = (int) Math.round((bitSetSize / expectedNumberOfFilterElements) *
-                Math.log(2.0));
-        bitset = new BitSet(bitSetSize);
-        this.bitSetSize = bitSetSize;
-        numberOfAddedElements = 0;
+    public BloomFilter(int bitSetSize, int expectedNumberOElements) {
+        this(bitSetSize / (double)expectedNumberOElements,
+             expectedNumberOElements,
+             (int) Math.round((bitSetSize / (double)expectedNumberOElements) * Math.log(2.0)));
+    }
+
+    /**
+     * Constructs an empty Bloom filter with a given false positive probability. The number of bits per
+     * element and the number of hash functions is estimated
+     * to match the false positive probability.
+     *
+     * @param falsePositiveProbability is the desired false positive probability.
+     * @param expectedNumberOfElements is the expected number of elements in the Bloom filter.
+     */
+    public BloomFilter(double falsePositiveProbability, int expectedNumberOfElements) {
+        this(Math.ceil(-(Math.log(falsePositiveProbability) / Math.log(2))) / Math.log(2), // c = k / ln(2)
+             expectedNumberOfElements,
+             (int)Math.ceil(-(Math.log(falsePositiveProbability) / Math.log(2)))); // k = ceil(-log_2(false prob.))
     }
 
     /**
@@ -345,5 +376,25 @@ public class BloomFilter<E> implements Serializable {
      */
     public int getExpectedNumberOfElements() {
         return expectedNumberOfFilterElements;
+    }
+
+    /**
+     * Get expected number of bits per element when the Bloom filter is full. This value is set by the constructor
+     * when the Bloom filter is created. See also getBitsPerElement().
+     *
+     * @return expected number of bits per element.
+     */
+    public double getExpectedBitsPerElement() {
+        return this.bitsPerElement;
+    }
+
+    /**
+     * Get actual number of bits per element based on the number of elements that have currently been inserted and the length
+     * of the Bloom filter. See also getExpectedBitsPerElement().
+     *
+     * @return number of bits per element.
+     */
+    public double getBitsPerElement() {
+        return this.bitSetSize / (double)numberOfAddedElements;
     }
 }

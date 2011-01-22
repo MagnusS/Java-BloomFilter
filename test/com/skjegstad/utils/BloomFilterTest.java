@@ -29,6 +29,25 @@ import static org.junit.Assert.*;
  * @author Magnus Skjegstad <magnus@skjegstad.com>
  */
 public class BloomFilterTest {
+    static Random r = new Random();
+
+    @Test
+    public void testConstructorCNK() throws Exception {
+        System.out.println("BloomFilter(c,n,k)");
+
+        for (int i = 0; i < 10000; i++) {
+            double c = r.nextInt(20) + 1;
+            int n = r.nextInt(10000) + 1;
+            int k = r.nextInt(20) + 1;
+            BloomFilter bf = new BloomFilter(c, n, k);
+            assertEquals(bf.getK(), k);
+            assertEquals(bf.getExpectedBitsPerElement(), c, 0);
+            assertEquals(bf.getExpectedNumberOfElements(), n);
+            assertEquals(bf.size(), c*n, 0);
+        }
+    }
+
+
     /**
      * Test of createHash method, of class BloomFilter.
      * @throws Exception
@@ -307,9 +326,9 @@ public class BloomFilterTest {
      * @throws UnsupportedEncodingException
      */
     @Test
-    public void testFalsePositiveRate() throws UnsupportedEncodingException {
+    public void testFalsePositiveRate1() throws UnsupportedEncodingException {
         // Numbers are from // http://pages.cs.wisc.edu/~cao/papers/summary-cache/node8.html
-        System.out.println("testFalsePositiveRate");
+        System.out.println("falsePositiveRate1");
 
         for (int j = 10; j < 21; j++) {
             System.out.print(j-9 + "/11");

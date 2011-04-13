@@ -56,13 +56,14 @@ public class BloomFilterTest {
     public void testCreateHash_String() throws Exception {
         System.out.println("createHash");
         String val = UUID.randomUUID().toString();
-        long result1 = BloomFilter.createHash(val);
-        long result2 = BloomFilter.createHash(val);
+        byte salt = 11;
+        int result1 = BloomFilter.createHash(val, salt);
+        int result2 = BloomFilter.createHash(val, salt);
         assertEquals(result2, result1);
-        long result3 = BloomFilter.createHash(UUID.randomUUID().toString());
+        long result3 = BloomFilter.createHash(UUID.randomUUID().toString(),salt);
         assertNotSame(result3, result2);
 
-        long result4 = BloomFilter.createHash(val.getBytes("UTF-8"));
+        long result4 = BloomFilter.createHash(val.getBytes("UTF-8"), salt);
         assertEquals(result4, result1);
     }
 
@@ -75,8 +76,9 @@ public class BloomFilterTest {
         System.out.println("createHash");
         String val = UUID.randomUUID().toString();
         byte[] data = val.getBytes("UTF-8");
-        long result1 = BloomFilter.createHash(data);
-        long result2 = BloomFilter.createHash(val);
+        byte salt = 11;
+        long result1 = BloomFilter.createHash(data, salt);
+        long result2 = BloomFilter.createHash(val, salt);
         assertEquals(result1, result2);
     }
 

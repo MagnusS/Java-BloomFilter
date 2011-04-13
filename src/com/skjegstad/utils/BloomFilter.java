@@ -122,33 +122,37 @@ public class BloomFilter<E> implements Serializable {
      *
      * @param val specifies the input data.
      * @param charset specifies the encoding of the input data.
+     * @param salt to use for the digest function
      * @return digest as long.
      */
-    public static long createHash(String val, Charset charset) {
-        return createHash(val.getBytes(charset));
+    public static int createHash(String val, Charset charset, byte salt) {
+        return createHash(val.getBytes(charset), salt);
     }
 
     /**
      * Generates a digest based on the contents of a String.
      *
      * @param val specifies the input data. The encoding is expected to be UTF-8.
+     * @param salt to use for the digest function
      * @return digest as long.
      */
-    public static long createHash(String val) {
-        return createHash(val, charset);
+    public static int createHash(String val, byte salt) {
+        return createHash(val, charset, salt);
     }
 
     /**
      * Generates a digest based on the contents of an array of bytes.
      *
      * @param data specifies input data.
+     * @param salt to use for the digest function
      * @return digest as long.
      */
-    public static long createHash(byte[] data) {
-        long h = 0;
+    public static int createHash(byte[] data, byte salt) {
+        int h = 0;
         byte[] res;
 
         synchronized (digestFunction) {
+            digestFunction.update(salt);
             res = digestFunction.digest(data);
         }
 
@@ -272,9 +276,9 @@ public class BloomFilter<E> implements Serializable {
      */
     public void add(E element) {
        long hash;
-       String valString = element.toString();
+       byte[] data = element.toString().getBytes(charset);
        for (int x = 0; x < k; x++) {
-           hash = createHash(valString + Integer.toString(x));
+           hash = createHash(data, (byte)x);
            hash = hash % (long)bitSetSize;
            bitset.set(Math.abs((int)hash), true);
        }
@@ -300,9 +304,9 @@ public class BloomFilter<E> implements Serializable {
      */
     public boolean contains(E element) {
        long hash;
-       String valString = element.toString();
+       byte[] data = element.toString().getBytes(charset);
        for (int x = 0; x < k; x++) {
-           hash = createHash(valString + Integer.toString(x));
+           hash = createHash(data, (byte)x);
            hash = hash % (long)bitSetSize;
            if (!bitset.get(Math.abs((int)hash)))
                return false;

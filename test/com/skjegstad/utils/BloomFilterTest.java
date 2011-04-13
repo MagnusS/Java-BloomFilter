@@ -56,14 +56,13 @@ public class BloomFilterTest {
     public void testCreateHash_String() throws Exception {
         System.out.println("createHash");
         String val = UUID.randomUUID().toString();
-        byte salt = 11;
-        int result1 = BloomFilter.createHash(val, salt);
-        int result2 = BloomFilter.createHash(val, salt);
+        int result1 = BloomFilter.createHash(val);
+        int result2 = BloomFilter.createHash(val);
         assertEquals(result2, result1);
-        long result3 = BloomFilter.createHash(UUID.randomUUID().toString(),salt);
+        int result3 = BloomFilter.createHash(UUID.randomUUID().toString());
         assertNotSame(result3, result2);
 
-        long result4 = BloomFilter.createHash(val.getBytes("UTF-8"), salt);
+        int result4 = BloomFilter.createHash(val.getBytes("UTF-8"));
         assertEquals(result4, result1);
     }
 
@@ -76,10 +75,30 @@ public class BloomFilterTest {
         System.out.println("createHash");
         String val = UUID.randomUUID().toString();
         byte[] data = val.getBytes("UTF-8");
-        byte salt = 11;
-        long result1 = BloomFilter.createHash(data, salt);
-        long result2 = BloomFilter.createHash(val, salt);
+        int result1 = BloomFilter.createHash(data);
+        int result2 = BloomFilter.createHash(val);
         assertEquals(result1, result2);
+    }
+
+    /**
+     * Test of createHash method, of class BloomFilter.
+     * @throws UnsupportedEncodingException
+     */
+    @Test
+    public void testCreateHashes_byteArr() throws UnsupportedEncodingException {
+        System.out.println("createHashes");
+        String val = UUID.randomUUID().toString();
+        byte[] data = val.getBytes("UTF-8");
+        int[] result1 = BloomFilter.createHashes(data, 10);
+        int[] result2 = BloomFilter.createHashes(data, 10);
+        assertEquals(result1.length, 10);
+        assertEquals(result2.length, 10);
+        assertArrayEquals(result1, result2);
+        int[] result3 = BloomFilter.createHashes(data, 5);
+        assertEquals(result3.length, 5);
+        for (int i = 0; i < result3.length; i++)
+            assertEquals(result3[i], result1[i]);
+
     }
 
     /**

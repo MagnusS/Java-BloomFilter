@@ -122,45 +122,65 @@ public class BloomFilter<E> implements Serializable {
      *
      * @param val specifies the input data.
      * @param charset specifies the encoding of the input data.
-     * @param salt to use for the digest function
      * @return digest as long.
      */
-    public static int createHash(String val, Charset charset, byte salt) {
-        return createHash(val.getBytes(charset), salt);
+    public static int createHash(String val, Charset charset) {
+        return createHash(val.getBytes(charset));
     }
 
     /**
      * Generates a digest based on the contents of a String.
      *
      * @param val specifies the input data. The encoding is expected to be UTF-8.
-     * @param salt to use for the digest function
      * @return digest as long.
      */
-    public static int createHash(String val, byte salt) {
-        return createHash(val, charset, salt);
+    public static int createHash(String val) {
+        return createHash(val, charset);
     }
 
     /**
      * Generates a digest based on the contents of an array of bytes.
      *
      * @param data specifies input data.
-     * @param salt to use for the digest function
      * @return digest as long.
      */
-    public static int createHash(byte[] data, byte salt) {
-        int h = 0;
-        byte[] res;
+    public static int createHash(byte[] data) {
+        return createHashes(data, 1)[0];
+    }
 
-        synchronized (digestFunction) {
-            digestFunction.update(salt);
-            res = digestFunction.digest(data);
-        }
+    /**
+     * Generates digests based on the contents of an array of bytes and splits the result into 4-byte int's and store them in an array. The
+     * digest function is called until the required number of int's are produced. For each call to digest a salt
+     * is prepended to the data. The salt is increased by 1 for each call.
+     *
+     * @param data specifies input data.
+     * @param hashes number of hashes/int's to produce.
+     * @return array of int-sized hashes
+     */
+    public static int[] createHashes(byte[] data, int hashes) {
+        int[] result = new int[hashes];
 
-        for (int i = 0; i < 4; i++) {
-            h <<= 8;
-            h |= ((int) res[i]) & 0xFF;
+        int k = 0;
+        byte salt = 0;
+        while (k < hashes) {
+            byte[] digest;
+            synchronized (digestFunction) {
+                digestFunction.update(salt);
+                salt++;
+                digest = digestFunction.digest(data);                
+            }
+        
+            for (int i = 0; i < digest.length/4 && k < hashes; i++) {
+                int h = 0;
+                for (int j = (i*4); j < (i*4)+4; j++) {
+                    h <<= 8;
+                    h |= ((int) digest[j]) & 0xFF;
+                }
+                result[k] = h;
+                k++;
+            }
         }
-        return h;
+        return result;
     }
 
     /**
@@ -275,13 +295,19 @@ public class BloomFilter<E> implements Serializable {
      * @param element is an element to register in the Bloom filter.
      */
     public void add(E element) {
-       long hash;
-       byte[] data = element.toString().getBytes(charset);
-       for (int x = 0; x < k; x++) {
-           hash = createHash(data, (byte)x);
-           hash = hash % (long)bitSetSize;
-           bitset.set(Math.abs((int)hash), true);
-       }
+       add(element.toString().getBytes(charset));
+       numberOfAddedElements ++;
+    }
+
+    /**
+     * Adds an array of bytes to the Bloom filter.
+     *
+     * @param bytes array of bytes to add to the Bloom filter.
+     */
+    public void add(byte[] bytes) {
+       int[] hashes = createHashes(bytes, k);
+       for (int hash : hashes)
+           bitset.set(Math.abs(hash % bitSetSize), true);
        numberOfAddedElements ++;
     }
 
@@ -293,7 +319,7 @@ public class BloomFilter<E> implements Serializable {
         for (E element : c)
             add(element);
     }
-
+        
     /**
      * Returns true if the element could have been inserted into the Bloom filter.
      * Use getFalsePositiveProbability() to calculate the probability of this
@@ -303,15 +329,25 @@ public class BloomFilter<E> implements Serializable {
      * @return true if the element could have been inserted into the Bloom filter.
      */
     public boolean contains(E element) {
-       long hash;
-       byte[] data = element.toString().getBytes(charset);
-       for (int x = 0; x < k; x++) {
-           hash = createHash(data, (byte)x);
-           hash = hash % (long)bitSetSize;
-           if (!bitset.get(Math.abs((int)hash)))
-               return false;
-       }
-       return true;
+        return contains(element.toString().getBytes(charset));
+    }
+
+    /**
+     * Returns true if the array of bytes could have been inserted into the Bloom filter.
+     * Use getFalsePositiveProbability() to calculate the probability of this
+     * being correct.
+     *
+     * @param bytes array of bytes to check.
+     * @return true if the array could have been inserted into the Bloom filter.
+     */
+    public boolean contains(byte[] bytes) {
+        int[] hashes = createHashes(bytes, k);
+        for (int hash : hashes) {
+            if (!bitset.get(Math.abs(hash % bitSetSize))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

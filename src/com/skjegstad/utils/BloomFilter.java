@@ -26,6 +26,8 @@ import java.util.Collection;
  * Implementation of a Bloom-filter, as described here:
  * http://en.wikipedia.org/wiki/Bloom_filter
  *
+ * For updates and bugfixes, see http://java-bloomfilter.googlecode.com
+ *
  * Inspired by the SimpleBloomFilter-class written by Ian Clarke. This
  * implementation provides a more evenly distributed Hash-function by
  * using a proper digest instead of the Java RNG. Many of the changes

@@ -61,7 +61,7 @@ public class BloomFilter<E> implements Serializable {
 
     /**
       * Constructs an empty Bloom filter. The total length of the Bloom filter will be
-     * c*n.
+      * c*n.
       *
       * @param c is the number of bits used per element.
       * @param n is the expected number of elements the filter will contain.
@@ -296,7 +296,6 @@ public class BloomFilter<E> implements Serializable {
      */
     public void add(E element) {
        add(element.toString().getBytes(charset));
-       numberOfAddedElements ++;
     }
 
     /**

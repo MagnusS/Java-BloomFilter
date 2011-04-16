@@ -15,6 +15,8 @@
 
 package com.skjegstad.utils;
 
+import java.nio.charset.Charset;
+import java.util.BitSet;
 import java.util.List;
 import java.io.UnsupportedEncodingException;
 import java.util.Random;
@@ -353,31 +355,32 @@ public class BloomFilterTest {
 
         for (int j = 10; j < 21; j++) {
             System.out.print(j-9 + "/11");
-            List<String> v = new ArrayList<String>();
+            List<byte[]> v = new ArrayList<byte[]>();
             BloomFilter instance = new BloomFilter(100*j,100);
 
             for (int i = 0; i < 100; i++) {
-                v.add(UUID.randomUUID().toString());
+                byte[] bytes = new byte[100];
+                r.nextBytes(bytes);
+                v.add(bytes);
             }
             instance.addAll(v);
 
-            long r = 0;
-            double tests = 100000;
+            long f = 0;
+            double tests = 300000;
             for (int i = 0; i < tests; i++) {
-                String s = UUID.randomUUID().toString();
-                if (instance.contains(s)) {
-                    if (!v.contains(s)) {
-                        r++;
+                byte[] bytes = new byte[100];
+                r.nextBytes(bytes);
+                if (instance.contains(bytes)) {
+                    if (!v.contains(bytes)) {
+                        f++;
                     }
                 }
             }
 
-            double ratio = r / tests;
+            double ratio = f / tests;
 
             System.out.println(" - got " + ratio + ", math says " + instance.expectedFalsePositiveProbability());
             assertEquals(instance.expectedFalsePositiveProbability(), ratio, 0.01);
-
-            
         }
     }
 
@@ -420,6 +423,64 @@ public class BloomFilterTest {
 
         instance = new BloomFilter(12, 1);
         assertEquals(8, instance.getK());
+    }
+    
+    /**
+     * Test of contains method, of class BloomFilter.
+     */
+    @Test
+    public void testContains_GenericType() {
+        System.out.println("contains");
+        int items = 100;
+        BloomFilter<String> instance = new BloomFilter(0.01, items);
+
+        for (int i = 0; i < items; i++) {
+            String s = UUID.randomUUID().toString();
+            instance.add(s);
+            assertTrue(instance.contains(s));
+        }
+    }
+
+    /**
+     * Test of contains method, of class BloomFilter.
+     */
+    @Test
+    public void testContains_byteArr() {
+        System.out.println("contains");
+
+        int items = 100;
+        BloomFilter instance = new BloomFilter(0.01, items);
+
+        for (int i = 0; i < items; i++) {
+            byte[] bytes = new byte[500];
+            r.nextBytes(bytes);
+            instance.add(bytes);
+            assertTrue(instance.contains(bytes));
+        }
+    }
+
+    /**
+     * Test of count method, of class BloomFilter.
+     */
+    @Test
+    public void testCount() {
+        System.out.println("count");
+        int expResult = 100;
+        BloomFilter instance = new BloomFilter(0.01, expResult);
+        for (int i = 0; i < expResult; i++) {
+            byte[] bytes = new byte[100];
+            r.nextBytes(bytes);
+            instance.add(bytes);
+        }
+        int result = instance.count();
+        assertEquals(expResult, result);
+
+        instance = new BloomFilter(0.01, expResult);
+        for (int i = 0; i < expResult; i++) {
+            instance.add(UUID.randomUUID().toString());
+        }
+        result = instance.count();
+        assertEquals(expResult, result);
     }
 
 

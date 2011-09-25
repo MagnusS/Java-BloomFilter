@@ -2,6 +2,7 @@ java-bloomfilter
 ================
 java-bloomfilter is a stand-alone Bloom filter implementation written in Java. It is intended to be easy to include in existing projects without the overhead of additional libraries. The first version was inspired by a blog entry by [Ian Clarke](http://blog.locut.us/2008/01/12/a-decent-stand-alone-java-bloom-filter-implementation/).
 
+The latest version can be downloaded from [GitHub](https://github.com/magnuss/java-bloomfilter).
 
 Bloom filters
 -------------
@@ -60,15 +61,15 @@ if (bloomFilter.contains("bar")) { // Should return false, but could return true
 
 Compiling
 ---------
-To compile, run ant from the base directory of the project.
+To compile, run ant from the base directory.
 
 	ant jar
 
 When ant is done, include dist/java-bloomfilter.jar in your project.
 
-Alternatively, the project could be loaded in Netbeans and compiled using the IDE.
+Alternatively, java-bloomfilter could be loaded in Netbeans and compiled using the IDE.
 
-If you want to avoid adding another library to your project, all the Bloom filter code is in src/com/skjegstad/utils/BloomFilter.java. You may copy this code directly into your project if you leave the LGPL-comment in place and reference the project web page.
+If you want to avoid adding another library to your project, all the Bloom filter code is in src/com/skjegstad/utils/BloomFilter.java. You may copy this code directly into your project if you leave the LGPL-comment in place and reference the java-bloomfilter web page.
 
 Changes
 -------

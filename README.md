@@ -56,6 +56,18 @@ if (bloomFilter.contains("bar")) { // Should return false, but could return true
 }
 ```
 
+Compiling
+---------
+To compile, run ant from the base directory of the project.
+
+	ant jar
+
+When ant is done, include dist/java-bloomfilter.jar in your project.
+
+Alternatively, the project could be loaded in Netbeans and compiled using the IDE.
+
+If you want to avoid adding another library to your project, all the Bloom filter code is in src/com/skjegstad/utils/BloomFilter.java. You may copy this code directly into your project if you leave the LGPL-comment in place and reference the project web page.
+
 Changes
 -------
 ### 1.0

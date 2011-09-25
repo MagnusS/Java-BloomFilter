@@ -63,6 +63,7 @@ Changes
 * Added benchmark code to test future code optimizations.
 * Fixed a bug in add() where numberOfAddedElements was incorrectly increased twice when adding other elements than byte-arrays. Updated test.
 * Moved project to Github
+* Added javadoc and source jar to build script.
 
 ### 0.9.3
 * New constructor for estimating bitSetSize from a given false positive probability.

@@ -6,7 +6,7 @@ The latest version can be downloaded from [GitHub](https://github.com/magnuss/ja
 
 Bloom filters
 -------------
-Bloom filters are usually used for set membership tests. They are fast and space-efficient at the cost of accuracy. Although there is a certain probability of error, Bloom filters never produce false negatives.
+Bloom filters are used for set membership tests. They are fast and space-efficient at the cost of accuracy. Although there is a certain probability of error, Bloom filters never produce false negatives.
 
 If you are new to Bloom filters, you can learn more about them in [this tutorial](http://llimllib.github.com/bloomfilter-tutorial/). A more comprehensive overview is available from [Wikipedia](http://en.wikipedia.org/wiki/Bloom_filter).
 

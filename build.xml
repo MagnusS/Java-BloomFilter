@@ -71,4 +71,12 @@
     nbproject/build-impl.xml file. 
 
     -->
+
+  <target description="bundle sources in a jar" name="package-sources">
+	  <jar basedir="src" destfile="dist/${application.title}-sources.jar"/>
+  </target>
+  <target depends="-javadoc-build" description="bundle javadoc in a jar" name="package-doc">
+	    <jar basedir="dist/javadoc" destfile="dist/${application.title}-javadoc.jar"/>
+    </target>
+  <target name="-post-jar" depends="package-sources, package-doc" />
 </project>

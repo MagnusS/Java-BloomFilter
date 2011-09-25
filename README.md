@@ -63,7 +63,7 @@ Compiling
 ---------
 To compile, run ant from the base directory.
 
-	ant jar
+	ant
 
 When ant is done, include dist/java-bloomfilter.jar in your project.
 
@@ -74,7 +74,7 @@ If you want to avoid adding another library to your project, all the Bloom filte
 Changes
 -------
 ### 1.0
-* Improved the speed of the add() and contains()-methods. The speed increase is around 4-5 times on my computer,, but the actual increase may vary from system to system.
+* Improved the speed of the add() and contains()-methods. The speed increase is around 4-5 times on my computer, but the actual increase may vary from system to system.
 * Added benchmark code to test future code optimizations.
 * Fixed a bug in add() where numberOfAddedElements was incorrectly increased twice when adding other elements than byte-arrays. Updated test.
 * Moved project to Github

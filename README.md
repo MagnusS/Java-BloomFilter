@@ -1,3 +1,5 @@
+java-bloomfilter
+================
 java-bloomfilter is a stand-alone Bloom filter implementation written in Java. It is intended to be easy to include in existing projects without the overhead of additional libraries. The first version was inspired by a blog entry by [Ian Clarke](http://blog.locut.us/2008/01/12/a-decent-stand-alone-java-bloom-filter-implementation/).
 
 

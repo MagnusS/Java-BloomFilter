@@ -69,7 +69,7 @@ When ant is done, include dist/java-bloomfilter.jar in your project.
 
 Alternatively, java-bloomfilter could be loaded in Netbeans and compiled using the IDE.
 
-If you want to avoid adding another library to your project, all the Bloom filter code is in src/com/skjegstad/utils/BloomFilter.java. You may copy this code directly into your project if you leave the LGPL-comment in place and reference the java-bloomfilter web page.
+If you want to avoid adding another library to your project, all the Bloom filter code is in [BloomFilter.java](https://github.com/MagnusS/Java-BloomFilter/blob/master/src/com/skjegstad/utils/BloomFilter.java). You may copy this code directly into your project if you leave the LGPL-comment in place and reference the java-bloomfilter web page.
 
 Changes
 -------

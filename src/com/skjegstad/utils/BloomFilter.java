@@ -35,7 +35,7 @@ import java.util.Collection;
  * http://blog.locut.us/2008/01/12/a-decent-stand-alone-java-bloom-filter-implementation/
  *
  * @param <E> Object type that is to be inserted into the Bloom filter, e.g. String or Integer.
- * @author Magnus Skjegstad <magnus@skjegstad.com>
+ * @author Magnus Skjegstad &lt;magnus@skjegstad.com&gt;
  */
 public class BloomFilter<E> implements Serializable {
     private BitSet bitset;
@@ -231,7 +231,7 @@ public class BloomFilter<E> implements Serializable {
     /**
      * Calculates the expected probability of false positives based on
      * the number of expected filter elements and the size of the Bloom filter.
-     * <br /><br />
+     * <br><br>
      * The value returned by this method is the <i>expected</i> rate of false
      * positives, assuming the number of inserted elements equals the number of
      * expected elements. If the number of elements in the Bloom filter is less
@@ -269,8 +269,8 @@ public class BloomFilter<E> implements Serializable {
 
 
     /**
-     * Returns the value chosen for K.<br />
-     * <br />
+     * Returns the value chosen for K.<br>
+     * <br>
      * K is the optimal number of hash functions based on the size
      * of the Bloom filter and the expected number of inserted elements.
      *
